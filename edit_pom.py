@@ -11,9 +11,7 @@ xml_agent='''<!-- executes maven test with -javaagent option -->
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.14</version>
                     <configuration>
-                            <skipTests>false</skipTests>
-                            <!--<argLine>-Xmx1024m -XX:MaxPermSize=256m -javaagent:${project.build.directory}/javassist-instrument-1.jar</argLine>-->
-            
+                            <skipTests>false</skipTests>                            
                             <argLine>-javaagent:target/${project.build.finalName}.jar=testUserLog</argLine>
                     </configuration>
             </plugin>'''
@@ -72,6 +70,7 @@ def agent_pom(pom_file,proj_name):
             break
     
     if not isfound_javaagent:
+        xml_agent.replace("testUserLog",str(proj_name))
         elem_agent=ET.fromstring(xml_agent)
         plugins.insert(len(plugins),elem_agent)
         

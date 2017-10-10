@@ -1,6 +1,8 @@
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 namespaces = {'xmlns' : 'http://maven.apache.org/POM/4.0.0'}
+ET.register_namespace('','http://maven.apache.org/POM/4.0.0')
+
 elem_prefix="{http://maven.apache.org/POM/4.0.0}"
 arg_agent='''-javaagent:/home/peipei/RepoReaper/AssistInstrumentation/target/javassist-instrument-1.jar='''
 xml_agent='''<!-- executes maven test with -javaagent option -->
@@ -24,16 +26,11 @@ xml_javassist='''<dependency>
                 </dependency>'''
                             
 
-pom_file="/home/peipei/RepoReaper/808/pom.xml"
-proj_name=808
-tree = ET.parse(pom_file)
-root = tree.getroot()
-
-ET.register_namespace('', "http://www.opengis.net/wmts/1.0")
-ET.register_namespace('ows', "http://www.opengis.net/ows/1.1")
-ET.register_namespace('xlink', "http://www.w3.org/1999/xlink")
-ET.register_namespace('xsi', "http://www.w3.org/2001/XMLSchema-instance")
-ET.register_namespace('gml', "http://www.opengis.net/gml")
+#ET.register_namespace('', "http://www.opengis.net/wmts/1.0")
+#ET.register_namespace('ows', "http://www.opengis.net/ows/1.1")
+#ET.register_namespace('xlink', "http://www.w3.org/1999/xlink")
+#ET.register_namespace('xsi', "http://www.w3.org/2001/XMLSchema-instance")
+#ET.register_namespace('gml', "http://www.opengis.net/gml")
 
 def print_subtree(subtree):
     for y in subtree:
@@ -97,11 +94,9 @@ def agent_pom(pom_file,proj_name):
     #rough_string = ET.tostring(elem)
     #reparsed = minidom.parseString(rough_string.encode('utf-8').decode('utf-8'))
    # print reparsed.toprettyxml(indent="  ")
-    file = open(pom_file, 'wb')
+    file = open("pom.xml", 'wb')
     file.write(rough_string)
     file.close()
 #end
 
-pom_file="/home/peipei/RepoReaper/808/pom.xml"
-proj_name=808
-agent_pom(pom_file,proj_name)
+agent_pom("pom.xml",808)

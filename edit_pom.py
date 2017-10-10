@@ -1,10 +1,11 @@
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
+import sys
 namespaces = {'xmlns' : 'http://maven.apache.org/POM/4.0.0'}
 ET.register_namespace('','http://maven.apache.org/POM/4.0.0')
-
 elem_prefix="{http://maven.apache.org/POM/4.0.0}"
 arg_agent='''-javaagent:/home/peipei/RepoReaper/AssistInstrumentation/target/javassist-instrument-1.jar='''
+
 xml_agent='''<!-- executes maven test with -javaagent option -->
             <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -53,7 +54,7 @@ def agent_pom(pom_file,proj_name):
     root = tree.getroot()
 
     #proj_name = root.find("name",namespaces=namespaces).text
-    args_agent=arg_agent+str(proj_name)
+    args_agent=arg_agent+proj_name
 
     ##hanlde surefire maven test javaagent JVM arguments
     plugins=root.find(elem_prefix+"build").find(elem_prefix+"plugins")
@@ -61,9 +62,12 @@ def agent_pom(pom_file,proj_name):
     isfound_javaagent=False
     for plugin in plugins.findall(elem_prefix+"plugin"):
         artifactId_name=plugin.find(elem_prefix+"artifactId").text
-        groupId_name=plugin.find(elem_prefix+"groupId").text
+	#print "plugin artifactId: ", artifactId_name
+        #groupId_name=plugin.find(elem_prefix+"groupId").text
+	#print "plugin groupId: ", groupId_name 
 
-        if artifactId_name=="maven-surefire-plugin" and groupId_name=="org.apache.maven.plugins":
+        #if artifactId_name=="maven-surefire-plugin" and groupId_name=="org.apache.maven.plugins":
+        if artifactId_name=="maven-surefire-plugin":
             args_CONF=plugin.find(elem_prefix+"configuration")
             if args_CONF is not None:
                 args_JVM=args_CONF.find(elem_prefix+"argLine")
@@ -112,9 +116,21 @@ def agent_pom(pom_file,proj_name):
     #rough_string = ET.tostring(elem)
     #reparsed = minidom.parseString(rough_string.encode('utf-8').decode('utf-8'))
    # print reparsed.toprettyxml(indent="  ")
-    file = open("pom2.xml", 'wb')
+    #file = open("pom.xml", 'wb')
+    file = open(pom_file, 'wb')
     file.write(rough_string)
     file.close()
 #end
 
-agent_pom("pom.xml",808)
+if __name__== '__main__':
+	if sys.argv is None or len(sys.argv)<2:
+		sys.exit('Error! You need to specify at least one maven project id!!')
+	
+	pom_file="/home/peipei/RepoReaper/"
+	for proj in sys.argv[1:]:
+		if isinstance(proj,(int,long)):
+			agent_pom(pom_file+str(proj)+"/pom.xml",str(proj))
+		elif isinstance(proj,str): 
+			agent_pom(pom_file+proj+"/pom.xml",proj)
+		else:
+			sys.exit('Invalid Input! The arguments are project IDs!')

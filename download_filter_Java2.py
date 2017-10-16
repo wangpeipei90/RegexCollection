@@ -241,3 +241,10 @@ with open("JavaProjectsWithUnitTest5.txt") as rfile:
 	    wfile.flush()
 
 wfile.close()
+
+_name__== '__main__':
+	if sys.argv is None or len(sys.argv)<3: (begin,end]
+		sys.exit('Error! You need to specify begin and end project ID!!')
+	ws="/home/peipei/RepoReaper/" ##workspace
+	begin=argv[1]
+	end=argv[2]

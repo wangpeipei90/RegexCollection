@@ -131,5 +131,5 @@ def processOnePage(i):
 
 if __name__ == '__main__':  ##python 2.7 version
         pool = Pool(processes=2)            # start 4 worker processes ##intotal it has 4 cores
-        print(pool.map(processOnePage, range(2914,3000)))       # prints "[0, 1, 4,..., 81]"
+        print(pool.map(processOnePage, range(2914,4000)))       # prints "[0, 1, 4,..., 81]"
         pool.terminate()

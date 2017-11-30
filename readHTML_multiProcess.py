@@ -27,13 +27,14 @@ def processOnePage(i):
 	soup = BeautifulSoup(page.read(),"lxml")
 	x = soup.body.find_all('tr') ## get all rows except table header
 	pairs=getPairs(x[0].find_all('th'))
-	print pairs
+	print "headers: ", pairs
 	#return
-	r=0		
+	r=-1 ##do not consider header		
 	for rep in x:
 			r+=1 #the row of the items on ith page
 			elements=rep.find_all('td') ##get the columns of each row
 			if len(elements)>10:  ##usually 0-14 == 15 columns
+				print "r: ", r
 				lan=elements[pairs.get(u'Language')].string
 				unit=elements[pairs.get(u'Unit Test')].string
 				#unit=float(elements[11].string)
@@ -50,20 +51,20 @@ def processOnePage(i):
 					urllib2.urlopen(string_api,context=context)
 				    except urllib2.HTTPError, e:
 					v_api=False
-					print(e.code)
+					print "api url http error: ", e.code
 				    except urllib2.URLError, e:
 					v_api=False
-					print(e.args)
+					print "api url url error: ", e.args
 
 				    v_url=True
 				    try:
 					urllib2.urlopen(string_url,context=context)
 				    except urllib2.HTTPError, e:
 					v_url=False
-					print(e.code)
+					print "proj url http error: ", e.code
 				    except urllib2.URLError, e:
 					v_url=False
-					print(e.args)
+					print "proj url url error: ", e.args
 
 				    file.write(str(i)) ## page in reporeaper
 				    file.write("\t")
@@ -129,8 +130,18 @@ def processOnePage(i):
 				    
 
 if __name__ == '__main__':  ##python 2.7 version
-        #processOnePage(1) ##1, 2914, 3707, 4400
-        #processOnePage(4400)
-        pool = Pool(processes=2)            # start 4 worker processes ##intotal it has 4 cores
-        print(pool.map(processOnePage, range(2914,4000)))       # prints "[0, 1, 4,..., 81]"
-        pool.terminate()
+	if sys.argv is None or len(sys.argv)<2: #
+		sys.exit('Error! You need to specify begin and end or specific page number!!')
+	if len(sys.argv)==2:
+		page=sys.argv[1]	
+		processOnePage(int(page)) ##1, 2914, 3707, 4400
+		print "-----------end-----------"
+		#processOnePage(4400)
+	elif len(sys.argv)==3:
+		begin=sys.argv[1]
+		end=sys.argv[2]
+		#pool = Pool(processes=2)            # start 4 worker processes ##intotal it has 4 cores
+		#print(pool.map(processOnePage, range(int(begin),int(end))))       # prints "[0, 1, 4,..., 81]"
+		#pool.terminate()
+		for i in range(int(begin),int(end)):
+			processOnePage(i)

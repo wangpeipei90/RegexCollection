@@ -53,17 +53,20 @@ def download(i,line,log,fh):
     string_url="https://wangpeipei90:jiangzhen123456@"+string_url[8:]
     cmd_git="git clone "+string_url+".git "+str(i)
     log.info(cmd_git)
-
+    print(cmd_git)
     status_git=os.system(cmd_git)
     log.info("git status: "+str(status_git))
     print "git status: "+str(status_git)
 
-    if status_git==32768:
-	return 1
+    #if status_git==32768:  ##fatal: destination path '792' already exists and is not an empty directory.
+	#return 1
 
     if os.path.exists(ws+str(i)) and status_git>0:
         log.info("the project has already existed.")
         print "the project has already existed."
+    elif status_git>0:
+	return 1
+
     return 0
 def calPom(log,fh):
     ##find . (-maxdepth 3) -name "pom.xml" -printf "%d %h\n" ##depth directories

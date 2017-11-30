@@ -58,33 +58,44 @@ def download(i,line,log,fh):
     log.info("git status: "+str(status_git))
     print "git status: "+str(status_git)
 
-    if status_git==32768:
-	return 1
+#    if status_git==32768:
+#	return 1
 
     if os.path.exists(ws+str(i)) and status_git>0:
         log.info("the project has already existed.")
         print "the project has already existed."
+    elif status_git>0:
+	return 1
+
     return 0
 def calPom(log,fh):
     ##find . (-maxdepth 3) -name "pom.xml" -printf "%d %h\n" ##depth directories
     #p_pom=subprocess.Popen(["find",".","-name","pom.xml","-printf","%d %h\n"],stdout=subprocess.PIPE)
     p_pom=subprocess.Popen(["find",".","-name","pom.xml"],stdout=subprocess.PIPE)
     p_pom_xml=subprocess.Popen(["wc","-l"],stdin=p_pom.stdout,stdout=subprocess.PIPE) ##example of piped command line find|wc
+
     p_pom.stdout.close()
+    p_pom.wait()
     output_xml,err_xml=p_pom_xml.communicate()
+#    p_pom_xml.stdout.close()
+#    p_pom_xml.wait()
+
     output_xml=output_xml.strip()
     log.info("pom.xml output| total number of pom.xml: %s" % output_xml)
     log.error("pom.xml error: %s" % err_xml)
-    log.info("pom.xml ret code: %d" % p_pom_xml.wait())
-    p_pom_xml.stdout.close()
+    log.info("pom.xml ret code: %d" % p_pom_xml.returncode)
     return output_xml,err_xml
 
 def sortPom(log,fh):
     p_pom2=subprocess.Popen(["find",".","-name","pom.xml","-printf","%d:%h\n"],stdout=subprocess.PIPE)
     p_pom_sort=subprocess.Popen(["sort","-n"],stdin=p_pom2.stdout,stdout=subprocess.PIPE) ##example of piped command line find|sort by depth
     p_pom2.stdout.close()
+    p_pom2.wait()
 
     output_sort,err_sort=p_pom_sort.communicate()
+#    p_pom_sort.stdout.close()
+#    p_pom_sort.wait()
+
     #output_sorts=output_sort.strip().split()
     #output_sorts2=output_sort.split("\n")
     output_sorts=re.split(":|\n",output_sort.strip())
@@ -93,38 +104,45 @@ def sortPom(log,fh):
     #print "pom sort output strip:",output_sorts2
     #print "pom sort output strip:",output_sorts3
     log.info("pom sort error: %s" % err_sort)
-    log.info("pom sort ret code: %d" % p_pom_sort.wait())
-    p_pom_sort.stdout.close()
+    log.info("pom sort ret code: %d" % p_pom_sort.returncode)
 
     return output_sorts,err_sort;
 
 def mvn_compile(i,f_dir,dep,log,fh):
     log.info("find pom.xml in depth: "+dep+" at the project directory: "+f_dir)
+    print("mvn compile find pom.xml in depth: "+dep+" at the project directory: "+f_dir)
     p_mvn_compile=subprocess.Popen(["mvn","compile"],stdout=subprocess.PIPE)
     output,err=p_mvn_compile.communicate()
+#    p_mvn_compile.stdout.close()
+#    ret=p_mvn_compile.wait()
+
     output_mvn_compile=output.strip()
-    ret=p_mvn_compile.wait()
-    p_mvn_compile.stdout.close()
     log.info("mvn compile output: %s" % output_mvn_compile)
     log.error("mvn compile error: %s" % err)
-    log.info("mvn compile ret code:%d" % ret)
+    log.info("mvn compile ret code:%d" % p_mvn_compile.returncode)
 
+    ret=p_mvn_compile.returncode
     if ret>0:
         log.error("Error in original mvn compile under the current directory: %d",i)
         return 1
     return 0
 
 def mvn_test(i,f_dir,dep,log,fh):
+    print("now run mvn test")
     p_mvn_test=subprocess.Popen(["mvn","test"],stdout=subprocess.PIPE)
     #print "mvn test sys stdout"
     output,err=p_mvn_test.communicate()
+#    p_mvn_test.stdout.close()
+#    ret=p_mvn_test.wait()
+
     output_mvn_test=output.strip()
-    ret=p_mvn_test.wait()
-    p_mvn_test.stdout.close()
     log.info("mvn test output: %s" % output_mvn_test)
     log.error("mvn test error: %s" % err)
-    log.info("mvn test ret code: %d" % ret)
+    log.info("mvn test ret code: %d" % p_mvn_test.returncode)
 
+
+
+    ret=p_mvn_compile.returncode
     if ret>0:
         log.error("Error in original mvn test under the current directory: %d" %i)
         return 1
@@ -218,11 +236,15 @@ def calRegex(i,log,fh):
 	p1=subprocess.Popen(["grep","-nr",m,str(i)],stdout=subprocess.PIPE)
 	p2=subprocess.Popen(["wc","-l"],stdin=p1.stdout,stdout=subprocess.PIPE) ##example of piped command line
 	p1.stdout.close()
+	p1.wait()
 	output,err=p2.communicate()
+#	p2.stdout.close()
+#	p2.wait()
+
 	output_regex=output.strip()
 	log.info("java.util.regex output: %s" % output)
 	log.error("java.util.regex error: %s" % err)
-	log.info("java.util.regex ret code: %d" % p2.wait())
+	log.info("java.util.regex ret code: %d" % p2.returncode)
 
 	#cmd_grep2=cmd_grep+"|wc -l"
 	#print cmd_grep2

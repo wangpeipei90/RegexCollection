@@ -38,7 +38,7 @@ for i in range(2914,4495): ##new # pages
 	#	print(element)
 	#	print(element.text)
 	#	print(element.string)
-	r=0		
+	r=-1		
 	for rep in x:
 			r+=1 #the row of the items on ith page
 			elements=rep.find_all('td') ##get the columns of each row

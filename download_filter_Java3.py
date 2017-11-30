@@ -49,17 +49,12 @@ def download(i,line,log,fh):
         closeLog(log,fh)
         return 1
 
-    ##add username:password for https://github.com
-    string_url="https://wangpeipei90:jiangzhen123456@"+string_url[8:]
     cmd_git="git clone "+string_url+".git "+str(i)
     log.info(cmd_git)
 
     status_git=os.system(cmd_git)
     log.info("git status: "+str(status_git))
     print "git status: "+str(status_git)
-
-    if status_git==32768:
-	return 1
 
     if os.path.exists(ws+str(i)) and status_git>0:
         log.info("the project has already existed.")
@@ -158,19 +153,22 @@ def mvn_process(i,log,fh):
 
     if f_dir==".":
         pom_need=1
-        comp_error=mvn_compile(i,f_dir,min_depth,log,fh)
+    #    comp_error=mvn_compile(i,f_dir,min_depth,log,fh)
+	comp_error=0
         if comp_error:
             pom_error+=1
 	else:
-            t_error=mvn_test(i,f_dir,min_depth,log,fh)
-            if t_error:
-                test_error+=1
+    #        t_error=mvn_test(i,f_dir,min_depth,log,fh)
+    #        if t_error:
+    #            test_error+=1
             log.info("change pom.xml")
             print("change pom.xml")
             agent_pom(ws+str(i)+"/pom.xml",str(i))
             log.info("run mvn test on changed pom.xml")
             print("run mvn test on changed pom.xml")
             t_error=mvn_test(i,f_dir,min_depth,log,fh)
+            if t_error:
+                test_error+=1
     else:
         dirs=0
         while dirs<int(output_xml): ##even is depth and odd is dirpath
@@ -181,17 +179,20 @@ def mvn_process(i,log,fh):
 			cur_cwd=os.getcwd()
 			os.chdir(cur_dir)
 			log.info("change directory to %s" % str(i)+"/"+cur_dir)
-                	comp_error=mvn_compile(i,f_dir,min_depth,log,fh)
+    #            	comp_error=mvn_compile(i,f_dir,min_depth,log,fh)
+			comp_error=0
 			if comp_error:
 				pom_error+=1
 			else:
-				t_error=mvn_test(i,cur_dir,cur_depth,log,fh)
-				if t_error:
-					test_error+=1
+#				t_error=mvn_test(i,cur_dir,cur_depth,log,fh)
+#				if t_error:
+#					test_error+=1
 			    	log.info("change pom.xml")
 				agent_pom(ws+str(i)+"/"+cur_dir+"/pom.xml",str(i))
 				log.info("run mvn test on changed pom.xml")
 				t_error=mvn_test(i,f_dir,min_depth,log,fh)
+				if t_error:
+					test_error+=1
 			os.chdir(cur_cwd)
     			log.info("change directory back to %s" % cur_cwd)
     			dirs+=1
@@ -273,7 +274,8 @@ def download_instrument(begin,end): #(begin,end]
 	    print("i: "+str(i))
             log,fh = createLog(log_path+str(i)+".log")
        	    line=line.strip()
-            ret=download(i,line,log,fh)
+            #ret=download(i,line,log,fh)
+	    ret=0
 	    if ret:
 		print("not valid download")
 		continue		

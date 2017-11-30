@@ -10,7 +10,8 @@ pthreads=4
 sep=":" ##seperator is only comma in Unix/Linux
 instrument_dir="/home/peipei/RepoReaper/soot_instrument"
 instrument_jars="/home/peipei/RepoReaper/soot_instrument/*"
-instrument_class="edu.ncsu.se.regex.PatternInstrument2"
+#instrument_class="edu.ncsu.se.regex.PatternInstrument2"
+instrument_class="edu.ncsu.se.regex.PatternInstrument3"
 java_cp="/opt/jdk1.7.0_80/jre/lib/rt.jar:/opt/jdk1.7.0_80/jre/lib/jce.jar" ##default 
 
 ##compose a settings.xml  
@@ -110,7 +111,7 @@ def extractJars(proj_path):
 ##java -cp $lib_jars:$instrument_file|jar:target/test-classes|classes PatternInstrument2 
 ##-cp /opt/jdk1.7.0_80/jre/lib/rt.jar -process-dir target/classes|test-classes -output-dir soot/classes|test-classes
 
-def instrument(proj_path):
+def instrument(proj_path,log_file):
     lib_jars=extractJars(proj_path)
     print "lib jars: ", lib_jars
  
@@ -136,7 +137,7 @@ def instrument(proj_path):
     
     ##run instrument    
     for class_dir in dirs:
-        p_instrument=subprocess.Popen(["/opt/jdk1.7.0_80/bin/java","-cp",soot_cp,instrument_class,"-cp",java_cp,"-f","class",
+        p_instrument=subprocess.Popen(["/opt/jdk1.7.0_80/bin/java","-cp",soot_cp,instrument_class,log_file,"-cp",java_cp,"-f","class",
             "-process-dir","target/"+class_dir,"-output-dir","soot/"+class_dir],stdout=subprocess.PIPE)
         
         #p_instrument=subprocess.Popen(["/opt/jdk1.7.0_80/bin/java","-cp",soot_cp,instrument_class,"-cp",java_cp,"-f","dava",
@@ -210,15 +211,15 @@ def soot_test(proj_path):
 ##end of soot_test(proj_path)
 
 
-def process(proj_path):
+def process(proj_path,log_file):
     proj_path=proj_path.rstrip('/')  ##remove trailing slashes
     proj_path=os.path.abspath(proj_path)
 
-    #compose(proj_path)
-    #res=mvn_test(proj_path)
+    compose(proj_path)
+    res=mvn_test(proj_path)
     #if res>0:
     #    print "error in mvn test"
-    instrument(proj_path)
+    instrument(proj_path,log_file)
     sys.exit(0)
     soot_test(proj_path)
     
@@ -228,4 +229,5 @@ if __name__ == "__main__":
 	sys.exit(1)
    else:
 	proc_dir=sys.argv[1]
-	process(proc_dir)
+	log_file=sys.argv[2]
+	process(proc_dir,log_file)
